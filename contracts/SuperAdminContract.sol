@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 contract SuperAdminContract {
 	address private Owner;
 
-	function SuperAdminContract(){
+	constructor(){
 		Owner = msg.sender;
 	}
 

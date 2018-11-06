@@ -15,7 +15,7 @@ contract UserPrivilegesContract is RolePrivilegesContract {
 		return UserRoles[userId];
 	}
 
-	function checkUserRole(uint userId, uint roleId) returns (bool) {
+	function checkRoleForUser(uint userId, uint roleId) returns (bool) {
 		uint[] userRoles = UserRoles[userId];
 
 		for(uint i = 0; i < userRoles.length; i++){
@@ -24,7 +24,7 @@ contract UserPrivilegesContract is RolePrivilegesContract {
 		return false;
 	}
 
-	function checkPermission(uint userId, uint permissionId) public returns (bool) {
+	function checkPermissionForUser(uint userId, uint permissionId) public returns (bool) {
 		uint[] userRoles = UserRoles[userId];
 
 		for(uint i = 0; i < userRoles.length; i++) {
