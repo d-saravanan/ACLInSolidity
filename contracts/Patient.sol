@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 contract Patient {
-    mapping(uint => address) Relationships;
+
     address[] Patients;
     string[] Documents;
     address[] Doctors;
@@ -20,6 +20,17 @@ contract Patient {
     mapping(address => address[]) patientDoctorMapping;
     mapping(address => string[]) patientDocuments;
     event DocumentAddedForAPatient(address indexed patientAddress, string docHash);
+
+    function test() public pure returns (bool) {
+        return true;
+    }
+
+    function removeDoctor(address patientAddress, address doctorAddress) public {
+        address[] storage patientDoctorMap = patientDoctorMapping[patientAddress];
+        address[] memory updatedMap = spliceAddressArray(patientDoctorMap, doctorAddress);
+        delete patientDoctorMapping[patientAddress];
+        patientDoctorMapping[patientAddress] = updatedMap;
+    }
 
     function getPatientDocumentCount(address patientAddress) public view returns (uint) {
         return patientDocuments[patientAddress].length;
@@ -66,7 +77,8 @@ contract Patient {
         }
     }
 
-    function registerDoctors(address patientAddress, address doctorAddress) public doesDoctorPatientMappingExist(patientAddress, doctorAddress) {
+    function registerDoctors(address patientAddress, address doctorAddress) public 
+    doesDoctorPatientMappingExist(patientAddress, doctorAddress, true) {
         patientDoctorMapping[patientAddress].push(doctorAddress);
     }
 
@@ -74,10 +86,10 @@ contract Patient {
         return patientDoctorMapping[patientAddress].length;
     }
 
-    modifier doesDoctorPatientMappingExist(address patientAddress, address doctorAddress) {
+    modifier doesDoctorPatientMappingExist(address patientAddress, address doctorAddress, bool forAdd) {
         address[] memory mappedDoctors = patientDoctorMapping[patientAddress];
 
-        if(mappedDoctors.length < 1) {
+        if(mappedDoctors.length < 1 && forAdd) {
             _;
             return;
         }
@@ -89,9 +101,32 @@ contract Patient {
             }
         }
 
-        if(canAdd) _;
+        if(canAdd) {
+            _;
+            return;
+        }
 
+        emit doctorPatientMappingDoesNotExist(patientAddress, doctorAddress);
         return;
+    }
+
+    event doctorPatientMappingDoesNotExist(address indexed patientAddress, address indexed doctorAddress);
+
+    modifier isDoctorMappedToPatient(address patientAddress, address doctorAddress) {
+        address[] memory mappedDoctors = patientDoctorMapping[patientAddress];
+
+        if(mappedDoctors.length < 1 ) {
+            revert("No valid mapping exists between the doctor and the patient. Hence erring out.");
+            // return;
+        }
+
+        for(uint i = 0; i < mappedDoctors.length; i++) {
+            if(mappedDoctors[i] == doctorAddress) {
+                _;
+                return;
+            }
+        }
+        revert("No valid mapping exists between the doctor and the patient. Hence erring out.");
     }
 
     function revokeAllPermissionsForDocument(address patientAddress, address targetUserAddress, string memory documentHash) public {
@@ -103,21 +138,39 @@ contract Patient {
     function revokePermissionForDocument(address patientAddress, address targetUserAddress, string memory documentHash, uint permissionToRevoke) 
     public {
         uint[] storage existingPermissions = patientShareDocumentAccessRights[patientAddress][documentHash][targetUserAddress];
-        patientShareDocumentAccessRights[patientAddress][documentHash][targetUserAddress] = spliceArray(existingPermissions, permissionToRevoke);
+        patientShareDocumentAccessRights[patientAddress][documentHash][targetUserAddress] = spliceNumericArray(existingPermissions, permissionToRevoke);
 
         existingPermissions = doctorAccessRightsCheck[targetUserAddress][patientAddress][documentHash];
-        doctorAccessRightsCheck[targetUserAddress][patientAddress][documentHash] = spliceArray(existingPermissions, permissionToRevoke);
+        doctorAccessRightsCheck[targetUserAddress][patientAddress][documentHash] = spliceNumericArray(existingPermissions, permissionToRevoke);
     }
 
-    function spliceArray(uint[] storage input, uint elementToRemove) private returns (uint[] memory) {
-        uint index = getElementIndex(input, elementToRemove);
+    function spliceNumericArray(uint[] storage input, uint elementToRemove) private returns (uint[] memory) {
+        uint index = getNumericElementIndex(input, elementToRemove);
         input[index] = input[input.length - 1];
         delete input[input.length - 1];
         input.length = input.length - 1;
         return input;
     }
 
-    function getElementIndex(uint[] memory data, uint needle) private returns (uint) {
+    function getNumericElementIndex(uint[] memory data, uint needle) private returns (uint) {
+        uint index = 0;
+        for(uint i = 0; i < data.length; i++) {
+            if(data[i] == needle) {
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    function spliceAddressArray(address[] storage input, address elementToRemove) private returns (address[] memory) {
+        uint index = getAddressElementIndex(input, elementToRemove);
+        input[index] = input[input.length - 1];
+        delete input[input.length - 1];
+        input.length = input.length - 1;
+        return input;
+    }
+
+    function getAddressElementIndex(address[] memory data, address needle) private returns (uint) {
         uint index = 0;
         for(uint i = 0; i < data.length; i++) {
             if(data[i] == needle) {
@@ -147,12 +200,14 @@ contract Patient {
         Documents.push(document);
     }*/
     
-    function shareDocumentWithDoctor(address patientAddress, string memory documentHash, address doctorAddress, uint permission) public {
+    function shareDocumentWithDoctor(address patientAddress, string memory documentHash, address doctorAddress, uint permission) public 
+    isDoctorMappedToPatient(patientAddress, doctorAddress) {
         patientShareDocumentAccessRights[patientAddress][documentHash][doctorAddress].push(permission);
         doctorAccessRightsCheck[doctorAddress][patientAddress][documentHash].push(permission);
     }
     
-    function checkPermissionGrant(address doctorAddress, address patientAddress, string memory documentHash) public view returns(uint[] memory) {
+    function checkPermissionGrant(address doctorAddress, address patientAddress, string memory documentHash) public 
+    isDoctorMappedToPatient(patientAddress, doctorAddress)  view returns(uint[] memory) {
         return doctorAccessRightsCheck[doctorAddress][patientAddress][documentHash];
     }
 
@@ -162,9 +217,9 @@ contract Patient {
     * store the mapping of removed documents by patient address
     * whenever the check is made for checkPermissionGrant and if the address has the same document hash, remove the hash
     */
-    function removeDocument(address patientAddress, string memory documentHash) public {
+    // function removeDocument(address patientAddress, string memory documentHash) public {
         //remove the document from the patient document source mapping;
-    }
+    // }
 
     /*
     function callDoctor(address doctorAddress) public returns(string memory) {
