@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
-contract Patient {
+contract AccessControlContract {
 
     address[] Patients;
     string[] Documents;
@@ -36,8 +37,8 @@ contract Patient {
         return patientDocuments[patientAddress].length;
     }
 
-    function addDocumentForPatient(address patientAddress, string memory documentHash) public
-        checkDocumentHashExists(patientAddress, documentHash)  {
+    function addDocumentForPatient(address patientAddress, string memory documentHash) public {
+        // checkDocumentHashExists(patientAddress, documentHash)  {
         patientDocuments[patientAddress].push(documentHash);
         emit DocumentAddedForAPatient(patientAddress, documentHash);
     }
@@ -62,24 +63,34 @@ contract Patient {
         return false;
     }
 
+    function getPatientDocuments(address patientAddress) public view returns (string[] memory) {
+        return patientDocuments[patientAddress];
+    }
+
     modifier checkDocumentHashExists(address patientAddress, string memory documentHash) {
         string[] memory patientDocs = patientDocuments[patientAddress];
 
         if(patientDocs.length < 1) {
             _;
+            return;
         }
-        return;
-
+        bool isFound = true;
         for(uint i = 0; i < patientDocs.length; i++) {
-            if(keccak256(bytes(patientDocs[i])) == keccak256(bytes(documentHash))) {
-                _;
+            if(keccak256(bytes(patientDocs[i])) != keccak256(bytes(documentHash))) {
+                isFound = false;
             }
         }
+
+        if(!isFound){
+            _;
+        }
     }
+    event DoctorMapped(address patAddr, address docAddr);
 
     function registerDoctors(address patientAddress, address doctorAddress) public 
     doesDoctorPatientMappingExist(patientAddress, doctorAddress, true) {
         patientDoctorMapping[patientAddress].push(doctorAddress);
+        emit DoctorMapped(patientAddress, doctorAddress);
     }
 
     function getDoctorCountPerPatient(address patientAddress) public view returns (uint256) {

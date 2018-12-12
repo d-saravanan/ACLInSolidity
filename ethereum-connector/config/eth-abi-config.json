@@ -1,0 +1,324 @@
+{
+  "contractAddress": "0x827b030984d5e75d4787463e648ed695ae2b8b4b",
+  "contractABI":[
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "patientAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "docHash",
+          "type": "string"
+        }
+      ],
+      "name": "DocumentAddedForAPatient",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "patAddr",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "docAddr",
+          "type": "address"
+        }
+      ],
+      "name": "DoctorMapped",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "patientAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "doctorAddress",
+          "type": "address"
+        }
+      ],
+      "name": "doctorPatientMappingDoesNotExist",
+      "type": "event"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "test",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "patientAddress",
+          "type": "address"
+        },
+        {
+          "name": "doctorAddress",
+          "type": "address"
+        }
+      ],
+      "name": "removeDoctor",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "patientAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getPatientDocumentCount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "patientAddress",
+          "type": "address"
+        },
+        {
+          "name": "documentHash",
+          "type": "string"
+        }
+      ],
+      "name": "addDocumentForPatient",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "patientAddress",
+          "type": "address"
+        }
+      ],
+      "name": "checkDocumentExists",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "patientAddress",
+          "type": "address"
+        },
+        {
+          "name": "documentHash",
+          "type": "string"
+        }
+      ],
+      "name": "isDocumentAdded",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "patientAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getPatientDocuments",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string[]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "patientAddress",
+          "type": "address"
+        },
+        {
+          "name": "doctorAddress",
+          "type": "address"
+        }
+      ],
+      "name": "registerDoctors",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "patientAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getDoctorCountPerPatient",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "patientAddress",
+          "type": "address"
+        },
+        {
+          "name": "targetUserAddress",
+          "type": "address"
+        },
+        {
+          "name": "documentHash",
+          "type": "string"
+        }
+      ],
+      "name": "revokeAllPermissionsForDocument",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "patientAddress",
+          "type": "address"
+        },
+        {
+          "name": "targetUserAddress",
+          "type": "address"
+        },
+        {
+          "name": "documentHash",
+          "type": "string"
+        },
+        {
+          "name": "permissionToRevoke",
+          "type": "uint256"
+        }
+      ],
+      "name": "revokePermissionForDocument",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "patientAddress",
+          "type": "address"
+        },
+        {
+          "name": "documentHash",
+          "type": "string"
+        },
+        {
+          "name": "doctorAddress",
+          "type": "address"
+        },
+        {
+          "name": "permission",
+          "type": "uint256"
+        }
+      ],
+      "name": "shareDocumentWithDoctor",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "doctorAddress",
+          "type": "address"
+        },
+        {
+          "name": "patientAddress",
+          "type": "address"
+        },
+        {
+          "name": "documentHash",
+          "type": "string"
+        }
+      ],
+      "name": "checkPermissionGrant",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
-var PatientProfileContract = artifacts.require("./Patient.sol");
+var AccessControlContract = artifacts.require("./AccessControlContract.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(PatientProfileContract);
+  deployer.deploy(AccessControlContract);
 };
